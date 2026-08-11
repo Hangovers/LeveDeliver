@@ -1,0 +1,11 @@
+# Build outputs
+**/bin/
+**/obj/
+
+# IDE / tooling
+.vs/
+*.user
+
+# ECommons submodule build artifacts (the submodule itself stays as a gitlink)
+ECommons/bin/
+ECommons/obj/
