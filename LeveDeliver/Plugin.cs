@@ -20,20 +20,31 @@ public sealed class Plugin : IDalamudPlugin
     private readonly MainWindow mainWindow;
     private readonly DeliverAllOverlay overlay;
 
-    public Plugin(IDalamudPluginInterface pluginInterface)
+    public Plugin(
+        IDalamudPluginInterface pluginInterface,
+        IFramework framework,
+        IChatGui chat,
+        IGameGui gameGui,
+        IDataManager dataManager,
+        IObjectTable objectTable,
+        ITargetManager targetManager,
+        ICondition condition,
+        IClientState clientState,
+        IPluginLog log,
+        ICommandManager commandManager)
     {
         this.pluginInterface = pluginInterface;
         Service.PluginInterface = pluginInterface;
-        Service.Framework = pluginInterface.Create<IFramework>()!;
-        Service.Chat = pluginInterface.Create<IChatGui>()!;
-        Service.GameGui = pluginInterface.Create<IGameGui>()!;
-        Service.Data = pluginInterface.Create<IDataManager>()!;
-        Service.Objects = pluginInterface.Create<IObjectTable>()!;
-        Service.Targets = pluginInterface.Create<ITargetManager>()!;
-        Service.Condition = pluginInterface.Create<ICondition>()!;
-        Service.ClientState = pluginInterface.Create<IClientState>()!;
-        Service.Log = pluginInterface.Create<IPluginLog>()!;
-        Service.Commands = pluginInterface.Create<ICommandManager>()!;
+        Service.Framework = framework;
+        Service.Chat = chat;
+        Service.GameGui = gameGui;
+        Service.Data = dataManager;
+        Service.Objects = objectTable;
+        Service.Targets = targetManager;
+        Service.Condition = condition;
+        Service.ClientState = clientState;
+        Service.Log = log;
+        Service.Commands = commandManager;
         ECommons.ECommonsMain.Init(pluginInterface, this, ECommons.Module.DalamudReflector);
 
         this.configuration = Configuration.Load(pluginInterface);
