@@ -16,15 +16,13 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
-  </PropertyGroup>
-
-  <!-- Linux builds (this repo is built on Linux via `dotnet build` with DALAMUD_HOME set) -->
-  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">
-    <DalamudLibPath Condition="'$(DALAMUD_HOME)' == ''">$(HOME)/.xlcore/dalamud/Hooks/dev/</DalamudLibPath>
-    <DalamudLibPath Condition="'$(DALAMUD_HOME)' != ''">$(DALAMUD_HOME)/</DalamudLibPath>
-  </PropertyGroup>
+  <!--
+    DalamudLibPath: let the Dalamud.NET.Sdk resolve it (Windows: %APPDATA%\XIVLauncher\addon\Hooks\dev\
+    for the release launcher, or the launcher's own data dir for dev launchers; Linux: ~/.xlcore/dalamud/Hooks/dev/).
+    Do NOT force a hardcoded path here — the user's XIVLauncher dev build uses a different data directory
+    (dev.goats.xivlauncher), and a forced wrong path produces binaries built against the wrong Dalamud
+    assemblies, which fail to load in-game.
+  -->
 
   <ItemGroup>
     <Content Include="LeveDeliver.json" />
