@@ -34,7 +34,7 @@ public sealed class Plugin : IDalamudPlugin
         Service.ClientState = pluginInterface.Create<IClientState>()!;
         Service.Log = pluginInterface.Create<IPluginLog>()!;
         Service.Commands = pluginInterface.Create<ICommandManager>()!;
-        ECommons.ECommonsMain.Init(pluginInterface, this);
+        ECommons.ECommonsMain.Init(pluginInterface, this, ECommons.Module.DalamudReflector);
 
         this.configuration = Configuration.Load(pluginInterface);
 
@@ -42,8 +42,18 @@ public sealed class Plugin : IDalamudPlugin
         this.database = LeveDatabase.Load(pluginInterface);
 
         this.pandora = new PandoraIPC(pluginInterface, Service.Chat);
-        this.pandora.CheckInstalled();
-        this.pandora.ChatStatus();
+        try
+        {
+            this.pandora.CheckInstalled();
+            this.pandora.ChatStatus();
+        }
+        catch (Exception ex)
+        {
+            // Pandora's Box detection is a soft dependency: if reflection fails for
+            // any reason, degrade to the built-in slot filler instead of failing load.
+            this.pandora.SetUnavailable();
+            Service.Log.Warning(ex, "Pandora's Box detection failed — using built-in slot filler.");
+        }
 
         this.flow = new AddonFlow(this.database, this.pandora, this.configuration, pluginInterface.UiBuilder);
 
@@ -77,10 +87,12 @@ public sealed class Plugin : IDalamudPlugin
         pluginInterface.UiBuilder.OpenConfigUi -= this.OpenConfigUi;
         this.windowSystem.RemoveAllWindows();
         this.flow.Dispose();
-        this.pandora.Dispose();
+        if (this.pandora.Installed)
+            this.pandora.Dispose();
         this.mainWindow.Dispose();
         this.overlay.Dispose();
         this.configuration.Dispose();
+        ECommons.ECommonsMain.Dispose();
     }
 
     private void FrameworkUpdate(IFramework framework)

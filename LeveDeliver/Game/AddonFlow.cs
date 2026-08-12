@@ -122,6 +122,13 @@ public unsafe class AddonFlow : IDisposable
         if (this.Running)
             return false;
 
+        if (this.db.All.Count == 0)
+        {
+            this.LastResult = "Leve database failed to load — cannot resolve delivery NPCs";
+            Service.Chat.PrintError($"LeveDeliver: {this.LastResult}.");
+            return false;
+        }
+
         var entry = LeveResolver.ResolveSelected(this.db);
         if (entry == null)
         {

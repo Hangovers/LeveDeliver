@@ -47,6 +47,11 @@ public class LeveDatabase
         this.ByName = byName;
     }
 
+    /// <summary>
+    /// Loads the embedded leve database. Never throws: if the resource is missing,
+    /// unreadable, or malformed, an empty database is returned (with a warning logged)
+    /// so a data problem can never prevent the plugin from loading.
+    /// </summary>
     public static LeveDatabase Load(IServiceProvider services)
     {
         Stream? stream = null;
@@ -62,7 +67,10 @@ public class LeveDatabase
             }
 
             if (stream == null)
-                throw new InvalidOperationException("LeveDatabase.json not found (missing embedded resource)");
+            {
+                Service.Log.Warning("LeveDatabase.json not found (missing embedded resource) — continuing with an empty leve database.");
+                return new LeveDatabase([]);
+            }
 
             var options = new JsonSerializerOptions
             {
@@ -82,6 +90,11 @@ public class LeveDatabase
 
             var entries = doc.RootElement.Deserialize<List<LeveEntry>>(options) ?? [];
             return new LeveDatabase(entries);
+        }
+        catch (Exception ex)
+        {
+            Service.Log.Warning(ex, "Failed to load LeveDatabase.json — continuing with an empty leve database.");
+            return new LeveDatabase([]);
         }
         finally
         {

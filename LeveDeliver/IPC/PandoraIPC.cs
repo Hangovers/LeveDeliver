@@ -41,6 +41,15 @@ public class PandoraIPC : IDisposable
         this.pauseSub = null;
     }
 
+    /// <summary>
+    /// Marks Pandora as unavailable (e.g. when detection fails) so the plugin
+    /// falls back to the built-in slot filler instead of failing to load.
+    /// </summary>
+    public void SetUnavailable()
+    {
+        this.Installed = false;
+    }
+
     /// <summary>True if Pandora's Box is installed and loaded (reflection-based).</summary>
     public bool Installed { get; private set; }
 
