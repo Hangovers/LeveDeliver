@@ -53,15 +53,14 @@ public class PandoraIPC : IDisposable
     /// <summary>True if Pandora's Box is installed and loaded (reflection-based).</summary>
     public bool Installed { get; private set; }
 
-    /// <summary>True if the "Auto-select Turn-ins" feature is enabled and its AutoSelect config is on.</summary>
+    /// <summary>True if the "Auto-select Turn-ins" feature is enabled. Pandora then
+    /// fills the request slots; LeveDeliver clicks HandOver itself.</summary>
     public bool IsAutofillActive
-        => this.Installed
-           && this.featureSub!.InvokeFunc(AutofillFeature) == true
-           && this.configSub!.InvokeFunc(AutofillFeature, AutofillConfigProp) == true;
-
-    /// <summary>True if Pandora's auto-fill is enabled but only via the feature toggle.</summary>
-    public bool IsAutofillFeatureEnabled
         => this.Installed && this.featureSub!.InvokeFunc(AutofillFeature) == true;
+
+    /// <summary>True if Pandora also auto-confirms (clicks HandOver) by itself.</summary>
+    public bool AutoConfirmEnabled
+        => this.Installed && this.configSub!.InvokeFunc(AutofillFeature, AutofillConfigProp) == true;
 
     /// <summary>Checks plugin presence via reflection. Call once after plugin load.</summary>
     public void CheckInstalled()

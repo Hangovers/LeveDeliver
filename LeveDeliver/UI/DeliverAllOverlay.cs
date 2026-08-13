@@ -55,6 +55,11 @@ public unsafe class DeliverAllOverlay : IDisposable
         var size = new Vector2(resNode->Width, resNode->Height) * scale;
         position.X += size.X + 6f * scale.X;
 
+        // Fixed size, independent of the game button: the "Delivering… Click to
+        // abort." label is wider than the Accept button, and letting ImGui size
+        // the window from the button pushes it on top of the game button.
+        var btnSize = new Vector2(170f, resNode->Height) * scale;
+
         ImGuiHelpers.ForceNextWindowMainViewport();
         ImGuiHelpers.SetNextWindowPosRelativeMainViewport(position);
 
@@ -66,7 +71,13 @@ public unsafe class DeliverAllOverlay : IDisposable
         ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, Vector2.Zero);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0f);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowMinSize, size);
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowMinSize, btnSize);
+
+        // The window is invisible-transparent by design; the button itself must
+        // be fully opaque so it is clearly visible over the game UI.
+        ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.26f, 0.59f, 0.98f, 1f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.36f, 0.68f, 1f, 1f));
+        ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.18f, 0.46f, 0.86f, 1f));
 
         ImGui.Begin(
             WindowName,
@@ -74,7 +85,7 @@ public unsafe class DeliverAllOverlay : IDisposable
             | ImGuiWindowFlags.AlwaysUseWindowPadding | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoSavedSettings);
 
         var label = this.flow.Running ? "Delivering… Click to abort." : "Deliver All";
-        if (ImGui.Button($"{label}###LeveDeliverStart", size))
+        if (ImGui.Button($"{label}###LeveDeliverStart", btnSize))
         {
             if (this.flow.Running)
                 this.flow.Abort("aborted by user");
@@ -86,6 +97,7 @@ public unsafe class DeliverAllOverlay : IDisposable
         ImGui.PopStyleVar(5);
         ImGui.GetFont().Scale = oldScale;
         ImGui.PopFont();
+        ImGui.PopStyleColor(3);
         ImGui.PopStyleColor();
     }
 

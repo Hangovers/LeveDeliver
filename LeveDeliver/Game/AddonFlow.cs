@@ -456,6 +456,18 @@ public unsafe class AddonFlow : IDisposable
         var request = (AddonRequest*)AddonHelpers.GetAddon("Request");
         if (request == null || !request->AtkUnitBase.IsVisible)
         {
+            // The Request window closes by design after HandOver is clicked; the game
+            // moves to the HQ confirmation / completion dialog. Transition, don't abort.
+            if (AddonHelpers.IsVisible("SelectYesno") || AddonHelpers.IsVisible("JournalResult"))
+            {
+                this.SetState(LeveFlowState.ConfirmingTurnin);
+                return;
+            }
+            if (AddonHelpers.IsVisible("SelectString") || AddonHelpers.IsVisible("Talk"))
+            {
+                this.SetState(LeveFlowState.SelectingTurnin);
+                return;
+            }
             if (this.TimedOut())
                 this.Abort("Request window disappeared");
             return;
@@ -466,6 +478,9 @@ public unsafe class AddonFlow : IDisposable
 
         if (filled)
         {
+            // If Pandora auto-confirms it clicks HandOver itself; otherwise we do.
+            if (this.pandora.AutoConfirmEnabled)
+                return;
             if (this.Throttle())
             {
                 // Click the HandOver button directly (same thing AddonMaster.Request.HandOver()
@@ -509,6 +524,14 @@ public unsafe class AddonFlow : IDisposable
         if (this.abortRequested)
         {
             this.Abort("aborted by user");
+            return;
+        }
+
+        // After the completion dialog is confirmed the leve leaves the accepted list.
+        if (!LeveState.IsAccepted(this.leve!.Id))
+        {
+            this.deliveries++;
+            this.SetState(LeveFlowState.Reopening);
             return;
         }
 
