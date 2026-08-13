@@ -14,7 +14,7 @@ public class PandoraIPC : IDisposable
 {
     public const string PluginName = "PandorasBox";
     public const string AutofillFeature = "Auto-select Turn-ins";
-    public const string AutofillConfigProp = "AutoSelect";
+    public const string AutofillConfigProp = "AutoConfirm";
 
     private readonly IDalamudPluginInterface pluginInterface;
     private readonly IChatGui chat;

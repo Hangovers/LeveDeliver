@@ -7,12 +7,14 @@ using System.Numerics;
 namespace LeveDeliver.UI;
 
 /// <summary>
-/// The "Deliver All" overlay button drawn over the JournalDetail Initiate button.
+/// The "Deliver All" overlay button drawn NEXT TO the JournalDetail Initiate
+/// (Accept) button while the leve list is open.
 ///
-/// Technique from Pandora's Box "Trade All Collectables" (TradeAllCollectibles.cs,
-/// BSD-3-Clause): on framework tick, locate the target button node, hide it, and
-/// draw a transparent ImGui window of the same size at the same screen position
-/// with our own button. Restores the original button when disabled.
+/// Deliberately does NOT hide the real Initiate button: hiding it every frame
+/// and restoring it when conditions change causes visible flickering and a
+/// transparent unclickable ghost window. Instead we leave the real button
+/// alone and draw our own button immediately to its right (Pandora's Box
+/// "Trade All Collectables" overlay technique, BSD-3-Clause, adapted).
 /// </summary>
 public unsafe class DeliverAllOverlay : IDisposable
 {
@@ -20,7 +22,6 @@ public unsafe class DeliverAllOverlay : IDisposable
 
     private readonly AddonFlow flow;
     private readonly Configuration config;
-    private bool originalVisible;
 
     public DeliverAllOverlay(AddonFlow flow, Configuration config)
     {
@@ -30,51 +31,29 @@ public unsafe class DeliverAllOverlay : IDisposable
 
     public void Dispose()
     {
-        this.RestoreButton();
     }
 
     /// <summary>Draws the overlay on the ImGui frame, if conditions are met.</summary>
     public void Draw()
     {
         if (!this.config.ShowOverlay)
-        {
-            this.RestoreButton();
             return;
-        }
 
         var journal = AddonHelpers.GetAddon("JournalDetail");
         if (journal == null || !journal->IsVisible || !journal->IsFullyLoaded())
-        {
-            this.RestoreButton();
             return;
-        }
 
-        if (AddonHelpers.GetAddon("GuildLeve") == null)
-        {
-            this.RestoreButton();
-            return;
-        }
-
-        // The Accept (Initiate) button of the JournalDetail addon.
         var detail = (AddonJournalDetail*)journal;
         var button = detail->InitiateButton;
         if (button == null || !button->AtkResNode->IsVisible())
-        {
-            this.RestoreButton();
             return;
-        }
 
-        // Hide the real button and draw our overlay over it (Trade All pattern).
-        if (button->AtkResNode->IsVisible())
-        {
-            button->AtkResNode->ToggleVisibility(false);
-            this.originalVisible = true;
-        }
-
+        // Position our button to the RIGHT of the real Initiate button.
         var resNode = button->AtkResNode;
         var position = GetNodePosition(resNode);
         var scale = GetNodeScale(resNode);
         var size = new Vector2(resNode->Width, resNode->Height) * scale;
+        position.X += size.X + 6f * scale.X;
 
         ImGuiHelpers.ForceNextWindowMainViewport();
         ImGuiHelpers.SetNextWindowPosRelativeMainViewport(position);
@@ -92,7 +71,7 @@ public unsafe class DeliverAllOverlay : IDisposable
         ImGui.Begin(
             WindowName,
             ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoNavFocus
-            | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoSavedSettings);
+            | ImGuiWindowFlags.AlwaysUseWindowPadding | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoSavedSettings);
 
         var label = this.flow.Running ? "Delivering… Click to abort." : "Deliver All";
         if (ImGui.Button($"{label}###LeveDeliverStart", size))
@@ -108,25 +87,6 @@ public unsafe class DeliverAllOverlay : IDisposable
         ImGui.GetFont().Scale = oldScale;
         ImGui.PopFont();
         ImGui.PopStyleColor();
-    }
-
-    /// <summary>Restores the original Initiate button visibility.</summary>
-    public void RestoreButton()
-    {
-        var journal = AddonHelpers.GetAddon("JournalDetail");
-        if (journal == null || !journal->IsFullyLoaded())
-            return;
-
-        var detail = (AddonJournalDetail*)journal;
-        var button = detail->InitiateButton;
-        if (button == null)
-            return;
-
-        if (this.originalVisible && !button->AtkResNode->IsVisible())
-        {
-            button->AtkResNode->ToggleVisibility(true);
-        }
-        this.originalVisible = false;
     }
 
     // Node position/scale helpers, from Pandora's Box Helpers/AtkResNodeHelper.cs

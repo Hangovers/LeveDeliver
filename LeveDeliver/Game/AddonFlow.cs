@@ -227,6 +227,16 @@ public unsafe class AddonFlow : IDisposable
             return;
         }
 
+        // After firing the JournalDetail initiate callback the game shows a
+        // SelectYesno confirmation ("Initiate this levequest?"). Confirm it
+        // (ChilledLeves TaskGrabLeve: FireCallback("SelectYesno", true, 0)).
+        if (AddonHelpers.IsVisible("SelectYesno"))
+        {
+            if (this.Throttle())
+                Callback.Fire(AddonHelpers.GetAddon("SelectYesno"), true, 0);
+            return;
+        }
+
         if (!AddonHelpers.IsVisible("GuildLeve"))
         {
             if (this.TimedOut())
