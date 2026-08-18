@@ -7,14 +7,16 @@ using System.Numerics;
 namespace LeveDeliver.UI;
 
 /// <summary>
-/// The "Deliver All" overlay button drawn NEXT TO the JournalDetail Initiate
+/// The "Deliver All" overlay button drawn ABOVE the JournalDetail Initiate
 /// (Accept) button while the leve list is open.
 ///
 /// Deliberately does NOT hide the real Initiate button: hiding it every frame
 /// and restoring it when conditions change causes visible flickering and a
 /// transparent unclickable ghost window. Instead we leave the real button
-/// alone and draw our own button immediately to its right (Pandora's Box
-/// "Trade All Collectables" overlay technique, BSD-3-Clause, adapted).
+/// alone and draw our own button directly above it, left-aligned — previously
+/// it was to the right and overlapped the Map/Abandon button (see screenshot
+/// 2026-08-18). Technique adapted from Pandora's Box "Trade All Collectables"
+/// overlay (BSD-3-Clause).
 /// </summary>
 public unsafe class DeliverAllOverlay : IDisposable
 {
@@ -54,19 +56,16 @@ public unsafe class DeliverAllOverlay : IDisposable
         if (button == null || !button->AtkResNode->IsVisible())
             return;
 
-        // Position our button to the RIGHT of the real Initiate button.
+        // Position our button directly ABOVE the real Initiate button, left-aligned.
+        // Previously it was to the right and overlapped the Map/Abandon button
+        // (screenshot 2026-08-18) and sat slightly low — user asked for either
+        // between the real buttons or above Accept. Above is the cleanest:
+        // it never collides with the bottom row and stays visible at any scale.
         var resNode = button->AtkResNode;
         var position = GetNodePosition(resNode);
         var scale = GetNodeScale(resNode);
-        var size = new Vector2(resNode->Width, resNode->Height) * scale;
-        position.X += size.X + 6f * scale.X;
-        // Was sitting ~2px too low vs the game button's visual center.
-        position.Y -= 2f * scale.Y;
-
-        // Fixed size, independent of the game button: the "Delivering… Click to
-        // abort." label is wider than the Accept button, and letting ImGui size
-        // the window from the button pushes it on top of the game button.
         var btnSize = new Vector2(170f, resNode->Height) * scale;
+        position.Y -= btnSize.Y + 6f * scale.Y;
 
         ImGuiHelpers.ForceNextWindowMainViewport();
         ImGuiHelpers.SetNextWindowPosRelativeMainViewport(position);
