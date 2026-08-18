@@ -1,0 +1,26 @@
+[
+  {
+    "Author": "Hangovers",
+    "Name": "Leve Deliver",
+    "Description": "Automates repeat levequest delivery: accept a leve, turn it in, repeat until leve allowances run out — with one click. Pairs with Pandora's Box 'Auto-select Turn-ins' when installed, and falls back to its own built-in slot filler otherwise. No navigation: you stand at the levemete and delivery NPC.",
+    "InternalName": "LeveDeliver",
+    "AssemblyVersion": "1.0.1.0",
+    "TestingAssemblyVersion": "1.0.1.0",
+    "RepoUrl": "https://github.com/Hangovers/LeveDeliver",
+    "ApplicableVersion": "any",
+    "DalamudApiLevel": 15,
+    "IsHide": false,
+    "IsTestingExclusive": false,
+    "LoadRequiredState": 1,
+    "LoadSync": false,
+    "CanUnloadAsync": true,
+    "LoadPriority": 0,
+    "Punchline": "One-click repeat leve delivery (Deliver All).",
+    "AcceptsFeedback": true,
+    "DownloadCount": 0,
+    "LastUpdate": "1787042695",
+    "DownloadLinkInstall": "https://github.com/Hangovers/LeveDeliver/releases/download/v1.0.1/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/Hangovers/LeveDeliver/releases/download/v1.0.1/latest.zip",
+    "IconUrl": "https://raw.githubusercontent.com/Hangovers/LeveDeliver/main/icon.png"
+  }
+]
