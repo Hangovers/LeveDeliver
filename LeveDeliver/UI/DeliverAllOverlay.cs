@@ -39,6 +39,12 @@ public unsafe class DeliverAllOverlay : IDisposable
         if (!this.config.ShowOverlay)
             return;
 
+        // Gate on the leve window itself — JournalDetail is shared with Duty
+        // Finder / Journal, and without this the button leaked into those UIs.
+        var guildLeve = AddonHelpers.GetAddon("GuildLeve");
+        if (guildLeve == null || !guildLeve->IsVisible || !guildLeve->IsFullyLoaded())
+            return;
+
         var journal = AddonHelpers.GetAddon("JournalDetail");
         if (journal == null || !journal->IsVisible || !journal->IsFullyLoaded())
             return;
@@ -54,6 +60,8 @@ public unsafe class DeliverAllOverlay : IDisposable
         var scale = GetNodeScale(resNode);
         var size = new Vector2(resNode->Width, resNode->Height) * scale;
         position.X += size.X + 6f * scale.X;
+        // Was sitting ~2px too low vs the game button's visual center.
+        position.Y -= 2f * scale.Y;
 
         // Fixed size, independent of the game button: the "Delivering… Click to
         // abort." label is wider than the Accept button, and letting ImGui size

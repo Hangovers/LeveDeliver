@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Authors>Hangovers</Authors>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Description>One-click repeat leve delivery (Deliver All).</Description>
     <PackageProjectUrl>https://github.com/hangovers/LeveDeliver</PackageProjectUrl>
     <IsPackable>false</IsPackable>
