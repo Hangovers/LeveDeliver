@@ -9,3 +9,7 @@
 # ECommons submodule build artifacts (the submodule itself stays as a gitlink)
 ECommons/bin/
 ECommons/obj/
+
+# Never commit the internal spec to GitHub (user rule)
+SPEC.md
+*.zip
